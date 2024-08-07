@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:src/model/contasModel.dart';
+import 'package:src/model/icon.dart';
 
 class ContasListScreen extends StatefulWidget {
   @override
@@ -186,20 +187,20 @@ class _ContasListScreenState extends State<ContasListScreen> {
       context: context,
       builder: (context) {
         final iconList = [
-          Icons.star,
-          Icons.favorite,
-          Icons.thumb_up,
-          Icons.thumb_down,
-          Icons.home,
-          Icons.settings,
-          Icons.person,
-          Icons.shopping_cart,
-          Icons.star_border,
-          Icons.ac_unit,
-          Icons.access_alarm,
-          Icons.airplanemode_active,
-          Icons.cake,
-          Icons.camera_alt,
+          obterIcon(1),
+          obterIcon(2),
+          obterIcon(3),
+          obterIcon(4),
+          obterIcon(5),
+          obterIcon(6),
+          obterIcon(7),
+          obterIcon(8),
+          obterIcon(9),
+          obterIcon(10),
+          obterIcon(11),
+          obterIcon(12),
+          obterIcon(13),
+          obterIcon(13),
         ];
 
         return AlertDialog(

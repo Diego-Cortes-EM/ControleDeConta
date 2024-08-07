@@ -41,7 +41,8 @@ class Mais extends StatelessWidget {
             () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CategoriaListScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const CategoriaListScreen()),
               );
             },
           ),

@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:src/isarCollection/userCollection.dart';
 import 'package:src/mais.dart';
 import 'package:src/model/icon.dart';
 import 'package:src/transacaoPage.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final isarService = IsarCategotia();
+
+  runApp(MyApp(isarService: isarService));
 }
 
 class MyApp extends StatelessWidget {
+  final IsarCategotia isarService;
+
+  MyApp({super.key, required this.isarService});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

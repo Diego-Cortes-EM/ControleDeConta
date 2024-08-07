@@ -33,7 +33,34 @@ const CategoriaSchema = CollectionSchema(
   deserialize: _categoriaDeserialize,
   deserializeProp: _categoriaDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'icone': IndexSchema(
+      id: 7580738525658849903,
+      name: r'icone',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'icone',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    ),
+    r'nome': IndexSchema(
+      id: -3554607249464315131,
+      name: r'nome',
+      unique: true,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'nome',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {},
   getId: _categoriaGetId,
@@ -48,12 +75,7 @@ int _categoriaEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  {
-    final value = object.nome;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
+  bytesCount += 3 + object.nome.length * 3;
   return bytesCount;
 }
 
@@ -73,10 +95,11 @@ Categoria _categoriaDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Categoria();
-  object.icone = reader.readLongOrNull(offsets[0]);
+  final object = Categoria(
+    icone: reader.readLong(offsets[0]),
+    nome: reader.readString(offsets[1]),
+  );
   object.id = id;
-  object.nome = reader.readStringOrNull(offsets[1]);
   return object;
 }
 
@@ -88,9 +111,9 @@ P _categoriaDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 1:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -108,11 +131,73 @@ void _categoriaAttach(IsarCollection<dynamic> col, Id id, Categoria object) {
   object.id = id;
 }
 
+extension CategoriaByIndex on IsarCollection<Categoria> {
+  Future<Categoria?> getByNome(String nome) {
+    return getByIndex(r'nome', [nome]);
+  }
+
+  Categoria? getByNomeSync(String nome) {
+    return getByIndexSync(r'nome', [nome]);
+  }
+
+  Future<bool> deleteByNome(String nome) {
+    return deleteByIndex(r'nome', [nome]);
+  }
+
+  bool deleteByNomeSync(String nome) {
+    return deleteByIndexSync(r'nome', [nome]);
+  }
+
+  Future<List<Categoria?>> getAllByNome(List<String> nomeValues) {
+    final values = nomeValues.map((e) => [e]).toList();
+    return getAllByIndex(r'nome', values);
+  }
+
+  List<Categoria?> getAllByNomeSync(List<String> nomeValues) {
+    final values = nomeValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'nome', values);
+  }
+
+  Future<int> deleteAllByNome(List<String> nomeValues) {
+    final values = nomeValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'nome', values);
+  }
+
+  int deleteAllByNomeSync(List<String> nomeValues) {
+    final values = nomeValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'nome', values);
+  }
+
+  Future<Id> putByNome(Categoria object) {
+    return putByIndex(r'nome', object);
+  }
+
+  Id putByNomeSync(Categoria object, {bool saveLinks = true}) {
+    return putByIndexSync(r'nome', object, saveLinks: saveLinks);
+  }
+
+  Future<List<Id>> putAllByNome(List<Categoria> objects) {
+    return putAllByIndex(r'nome', objects);
+  }
+
+  List<Id> putAllByNomeSync(List<Categoria> objects, {bool saveLinks = true}) {
+    return putAllByIndexSync(r'nome', objects, saveLinks: saveLinks);
+  }
+}
+
 extension CategoriaQueryWhereSort
     on QueryBuilder<Categoria, Categoria, QWhere> {
   QueryBuilder<Categoria, Categoria, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<Categoria, Categoria, QAfterWhere> anyIcone() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'icone'),
+      );
     });
   }
 }
@@ -183,28 +268,147 @@ extension CategoriaQueryWhere
       ));
     });
   }
+
+  QueryBuilder<Categoria, Categoria, QAfterWhereClause> iconeEqualTo(
+      int icone) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'icone',
+        value: [icone],
+      ));
+    });
+  }
+
+  QueryBuilder<Categoria, Categoria, QAfterWhereClause> iconeNotEqualTo(
+      int icone) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'icone',
+              lower: [],
+              upper: [icone],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'icone',
+              lower: [icone],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'icone',
+              lower: [icone],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'icone',
+              lower: [],
+              upper: [icone],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<Categoria, Categoria, QAfterWhereClause> iconeGreaterThan(
+    int icone, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'icone',
+        lower: [icone],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<Categoria, Categoria, QAfterWhereClause> iconeLessThan(
+    int icone, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'icone',
+        lower: [],
+        upper: [icone],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<Categoria, Categoria, QAfterWhereClause> iconeBetween(
+    int lowerIcone,
+    int upperIcone, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'icone',
+        lower: [lowerIcone],
+        includeLower: includeLower,
+        upper: [upperIcone],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Categoria, Categoria, QAfterWhereClause> nomeEqualTo(
+      String nome) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'nome',
+        value: [nome],
+      ));
+    });
+  }
+
+  QueryBuilder<Categoria, Categoria, QAfterWhereClause> nomeNotEqualTo(
+      String nome) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nome',
+              lower: [],
+              upper: [nome],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nome',
+              lower: [nome],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nome',
+              lower: [nome],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nome',
+              lower: [],
+              upper: [nome],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
 }
 
 extension CategoriaQueryFilter
     on QueryBuilder<Categoria, Categoria, QFilterCondition> {
-  QueryBuilder<Categoria, Categoria, QAfterFilterCondition> iconeIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'icone',
-      ));
-    });
-  }
-
-  QueryBuilder<Categoria, Categoria, QAfterFilterCondition> iconeIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'icone',
-      ));
-    });
-  }
-
   QueryBuilder<Categoria, Categoria, QAfterFilterCondition> iconeEqualTo(
-      int? value) {
+      int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'icone',
@@ -214,7 +418,7 @@ extension CategoriaQueryFilter
   }
 
   QueryBuilder<Categoria, Categoria, QAfterFilterCondition> iconeGreaterThan(
-    int? value, {
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -227,7 +431,7 @@ extension CategoriaQueryFilter
   }
 
   QueryBuilder<Categoria, Categoria, QAfterFilterCondition> iconeLessThan(
-    int? value, {
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -240,8 +444,8 @@ extension CategoriaQueryFilter
   }
 
   QueryBuilder<Categoria, Categoria, QAfterFilterCondition> iconeBetween(
-    int? lower,
-    int? upper, {
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -309,24 +513,8 @@ extension CategoriaQueryFilter
     });
   }
 
-  QueryBuilder<Categoria, Categoria, QAfterFilterCondition> nomeIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'nome',
-      ));
-    });
-  }
-
-  QueryBuilder<Categoria, Categoria, QAfterFilterCondition> nomeIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'nome',
-      ));
-    });
-  }
-
   QueryBuilder<Categoria, Categoria, QAfterFilterCondition> nomeEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -339,7 +527,7 @@ extension CategoriaQueryFilter
   }
 
   QueryBuilder<Categoria, Categoria, QAfterFilterCondition> nomeGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -354,7 +542,7 @@ extension CategoriaQueryFilter
   }
 
   QueryBuilder<Categoria, Categoria, QAfterFilterCondition> nomeLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -369,8 +557,8 @@ extension CategoriaQueryFilter
   }
 
   QueryBuilder<Categoria, Categoria, QAfterFilterCondition> nomeBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -551,13 +739,13 @@ extension CategoriaQueryProperty
     });
   }
 
-  QueryBuilder<Categoria, int?, QQueryOperations> iconeProperty() {
+  QueryBuilder<Categoria, int, QQueryOperations> iconeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'icone');
     });
   }
 
-  QueryBuilder<Categoria, String?, QQueryOperations> nomeProperty() {
+  QueryBuilder<Categoria, String, QQueryOperations> nomeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'nome');
     });

@@ -2,11 +2,22 @@ import 'package:isar/isar.dart';
 
 part 'categoria.g.dart';
 
-@collection
+@Collection()
 class Categoria {
-  Id id = Isar.autoIncrement; // you can also use id = null to auto increment
+  Id id = Isar.autoIncrement;
+  @Index()
+  late int icone;
+  @Index(unique: true)
+  late String nome;
 
-  int? icone;
+  Categoria({
+    required this.icone,
+    required this.nome,
+  });
 
-  String? nome;
+  Categoria.withId({
+    required this.id,
+    required this.icone,
+    required this.nome,
+  });
 }

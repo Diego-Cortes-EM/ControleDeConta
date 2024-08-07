@@ -1,35 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:src/Isar/categoria.dart';
+import 'package:src/isarCollection/userCollection.dart';
 import 'package:src/model/categoriaModel.dart';
+import 'package:src/model/icon.dart';
 
 class CategoriaListScreen extends StatefulWidget {
+  const CategoriaListScreen({super.key});
+
   @override
   _CategoriaListScreenState createState() => _CategoriaListScreenState();
 }
 
 class _CategoriaListScreenState extends State<CategoriaListScreen> {
-  List<CategoriaModel> categorias = [
-    CategoriaModel(
-      id: 0,
-      icone: Icons.star,
-      nome: 'Conta de Exemplo 1',
-    ),
-    CategoriaModel(
-      id: 1,
-      icone: Icons.favorite,
-      nome: 'Conta de Exemplo 2',
-    ),
-  ];
+  // Método para atualizar a lista de categorias
+  void _refreshCategorias() {
+    setState(() {});
+  }
 
-  IconData _selectedIcon = Icons.star;
-
-  void _editCategoria(int index, void Function() alterarValor) {
-    final categoria = categorias[index];
+  void _editCategoria(Categoria categoria) {
     showDialog(
       context: context,
       builder: (context) {
         final nomeController = TextEditingController(text: categoria.nome);
-        IconData _selectedIcon =
-            categoria.icone; // Inicialize com o ícone atual da categoria
+        IconData _selectedIcon = obterIcon(categoria.icone);
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -44,7 +38,7 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
                   ),
                   Row(
                     children: [
-                      Icon(categoria.icone),
+                      Icon(_selectedIcon),
                       const SizedBox(width: 10),
                       const Text('Ícone:'),
                       const SizedBox(width: 10),
@@ -62,22 +56,18 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    setState(() {
-                      categorias[index] = CategoriaModel(
-                        id: categorias[index].id,
-                        icone: _selectedIcon,
-                        nome: nomeController.text,
-                      );
-                      alterarValor;
-                    });
+                  onPressed: () async {
                     Navigator.of(context).pop();
+                    categoria.icone = obterCodigo(_selectedIcon);
+                    categoria.nome = nomeController.text;
+                    await IsarCategotia().updateCategoria(categoria);
+                    _refreshCategorias(); // Atualize a lista de categorias
                   },
-                  child: Text('Salvar'),
+                  child: const Text('Salvar'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancelar'),
+                  child: const Text('Cancelar'),
                 ),
               ],
             );
@@ -87,7 +77,7 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
     );
   }
 
-  void _deleteConta(int index, void Function() alterarValor) {
+  void _deleteConta(int id) {
     showDialog(
       context: context,
       builder: (context) {
@@ -96,12 +86,10 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
           content: Text('Você tem certeza que deseja excluir esta conta?'),
           actions: [
             TextButton(
-              onPressed: () {
-                setState(() {
-                  categorias.removeAt(index);
-                });
-                alterarValor;
+              onPressed: () async {
                 Navigator.of(context).pop();
+                await IsarCategotia().deleteCategoria(id);
+                _refreshCategorias(); // Atualize a lista de categorias
               },
               child: Text('Excluir'),
             ),
@@ -115,30 +103,23 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
     );
   }
 
-  void _addConta(void Function() alterarValor) {
+  void _addConta() {
     showDialog(
       context: context,
       builder: (context) {
         final nomeController = TextEditingController();
-        final valorController = TextEditingController();
-        IconData _selectedIcon =
-            Icons.star; // Defina um ícone padrão ou inicial
+        IconData _selectedIcon = Icons.star;
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: Text('Adicionar Conta'),
+              title: Text('Adicionar Categoria'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: nomeController,
                     decoration: InputDecoration(labelText: 'Nome'),
-                  ),
-                  TextField(
-                    controller: valorController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(labelText: 'Valor Atual'),
                   ),
                   Row(
                     children: [
@@ -160,23 +141,18 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.of(context).pop();
-                    setState(() {
-                      categorias.add(CategoriaModel(
-                        id: categorias.length +
-                            1, // Atualize o ID conforme necessário
-                        icone: _selectedIcon,
-                        nome: nomeController.text,
-                      ));
-                      alterarValor;
-                    });
+                    await IsarCategotia().addCategoria(Categoria(
+                        icone: obterCodigo(_selectedIcon),
+                        nome: nomeController.text));
+                    _refreshCategorias(); // Atualize a lista de categorias
                   },
-                  child: Text('Adicionar'),
+                  child: const Text('Adicionar'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancelar'),
+                  child: const Text('Cancelar'),
                 ),
               ],
             );
@@ -191,29 +167,29 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
       context: context,
       builder: (context) {
         final iconList = [
-          Icons.star,
-          Icons.favorite,
-          Icons.thumb_up,
-          Icons.thumb_down,
-          Icons.home,
-          Icons.settings,
-          Icons.person,
-          Icons.shopping_cart,
-          Icons.star_border,
-          Icons.ac_unit,
-          Icons.access_alarm,
-          Icons.airplanemode_active,
-          Icons.cake,
-          Icons.camera_alt,
+          obterIcon(1),
+          obterIcon(2),
+          obterIcon(3),
+          obterIcon(4),
+          obterIcon(5),
+          obterIcon(6),
+          obterIcon(7),
+          obterIcon(8),
+          obterIcon(9),
+          obterIcon(10),
+          obterIcon(11),
+          obterIcon(12),
+          obterIcon(13),
+          obterIcon(14),
         ];
 
         return AlertDialog(
           title: Text('Selecionar Ícone'),
           content: Container(
             width: double.maxFinite,
-            height: 300, // Ajuste a altura conforme necessário
+            height: 300,
             child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
                 childAspectRatio: 1.0,
               ),
@@ -224,8 +200,7 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
                   icon: Icon(iconData),
                   onPressed: () {
                     onIconSelected(iconData);
-                    Navigator.of(context)
-                        .pop(); // Fecha o diálogo após selecionar o ícone
+                    Navigator.of(context).pop();
                   },
                 );
               },
@@ -238,45 +213,52 @@ class _CategoriaListScreenState extends State<CategoriaListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool variavel = false;
-
-    void alterarValor() {
-      setState(() {
-        variavel = !variavel;
-      });
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Categorias'),
       ),
-      body: ListView.builder(
-        itemCount: categorias.length,
-        itemBuilder: (context, index) {
-          final conta = categorias[index];
-          return ListTile(
-            leading: Icon(conta.icone),
-            title: Text(conta.nome),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () => _editCategoria(index, alterarValor),
+      body: FutureBuilder<List<Categoria>>(
+        future: IsarCategotia().getCategorias(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erro: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Nenhuma categoria encontrada'));
+          }
+
+          final categories = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return ListTile(
+                leading: Icon(obterIcon(category.icone)),
+                title: Text(category.nome),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () => _editCategoria(category),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () => _deleteConta(category.id),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () => _deleteConta(index, alterarValor),
-                ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addConta(alterarValor),
+        onPressed: _addConta,
         child: Icon(Icons.add),
-        tooltip: 'Adicionar Conta',
+        tooltip: 'Adicionar Categoria',
       ),
     );
   }
