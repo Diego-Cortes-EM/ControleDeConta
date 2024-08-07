@@ -22,7 +22,7 @@ class _ContasListScreenState extends State<ContasListScreen> {
 
   IconData _selectedIcon = Icons.star;
 
-  void _editConta(int index) {
+  void _editConta(int index, void Function() alterarValor) {
     final conta = contas[index];
     showDialog(
       context: context,
@@ -73,6 +73,7 @@ class _ContasListScreenState extends State<ContasListScreen> {
                     valorAtual: double.tryParse(valorController.text) ??
                         conta.valorAtual,
                   );
+                  alterarValor;
                 });
                 Navigator.of(context).pop();
               },
@@ -88,7 +89,7 @@ class _ContasListScreenState extends State<ContasListScreen> {
     );
   }
 
-  void _deleteConta(int index) {
+  void _deleteConta(int index, void Function() alterarValor) {
     showDialog(
       context: context,
       builder: (context) {
@@ -101,6 +102,7 @@ class _ContasListScreenState extends State<ContasListScreen> {
                 setState(() {
                   contas.removeAt(index);
                 });
+                alterarValor;
                 Navigator.of(context).pop();
               },
               child: Text('Excluir'),
@@ -115,7 +117,7 @@ class _ContasListScreenState extends State<ContasListScreen> {
     );
   }
 
-  void _addConta() {
+  void _addConta(void Function() alterarValor) {
     showDialog(
       context: context,
       builder: (context) {
@@ -163,6 +165,7 @@ class _ContasListScreenState extends State<ContasListScreen> {
                     nome: nomeController.text,
                     valorAtual: double.tryParse(valorController.text) ?? 0.0,
                   ));
+                  alterarValor;
                 });
                 Navigator.of(context).pop();
               },
@@ -230,9 +233,17 @@ class _ContasListScreenState extends State<ContasListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool variavel = false;
+
+    void alterarValor() {
+      setState(() {
+        variavel = !variavel;
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contas'),
+        title: const Text('Contas'),
       ),
       body: ListView.builder(
         itemCount: contas.length,
@@ -247,11 +258,11 @@ class _ContasListScreenState extends State<ContasListScreen> {
               children: [
                 IconButton(
                   icon: Icon(Icons.edit),
-                  onPressed: () => _editConta(index),
+                  onPressed: () => _editConta(index, alterarValor),
                 ),
                 IconButton(
                   icon: Icon(Icons.delete),
-                  onPressed: () => _deleteConta(index),
+                  onPressed: () => _deleteConta(index, alterarValor),
                 ),
               ],
             ),
@@ -259,7 +270,7 @@ class _ContasListScreenState extends State<ContasListScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addConta,
+        onPressed: () => _addConta(alterarValor),
         child: Icon(Icons.add),
         tooltip: 'Adicionar Conta',
       ),

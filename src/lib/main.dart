@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:src/mais.dart';
+import 'package:src/model/icon.dart';
+import 'package:src/transacaoPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,7 +28,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
 
-  final List<Widget> _children = [HomePage(), SearchPage(), Mais()];
+  final List<Widget> _children = [HomePage(), Transacaopage(), Mais()];
 
   void onTabTapped(int index) {
     setState(() {
@@ -41,17 +43,17 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(ObterIconFixo(0)),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(ObterIconFixo(1)),
+            label: 'Tranferencias',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.app_registration_outlined),
+            icon: Icon(ObterIconFixo(2)),
             label: 'Mais',
           ),
         ],
@@ -68,15 +70,6 @@ class HomePage extends StatelessWidget {
         title: Text('Meu App'),
       ),
       body: const Center(child: Text('Home Page')),
-    );
-  }
-}
-
-class SearchPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Search Page'),
     );
   }
 }

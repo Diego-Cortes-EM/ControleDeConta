@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:src/categoria.dart';
 import 'package:src/contas.dart';
+import 'package:src/model/icon.dart';
 
 class Mais extends StatelessWidget {
-  const Mais({super.key});
+  // ignore: prefer_const_constructors_in_immutables
+  Mais({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +25,7 @@ class Mais extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         children: <Widget>[
           MenuMais(
-            Icons.account_balance_wallet_sharp,
+            ObterIconFixo(3),
             "Contas",
             () {
               Navigator.push(
@@ -32,16 +35,17 @@ class Mais extends StatelessWidget {
             },
           ),
           const Divider(),
-          Container(
-            height: 50,
-            color: Colors.amber[500],
-            child: const Center(child: Text('Entry B')),
+          MenuMais(
+            ObterIconFixo(4),
+            "Categoria",
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CategoriaListScreen()),
+              );
+            },
           ),
-          Container(
-            height: 50,
-            color: Colors.amber[100],
-            child: const Center(child: Text('Entry C')),
-          ),
+          const Divider(),
         ],
       ),
     );
